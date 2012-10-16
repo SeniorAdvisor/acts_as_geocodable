@@ -16,6 +16,6 @@ Gem::Specification.new do |s|
   s.rubygems_version = %q{1.3.6}
   s.summary = %q{Simple geocoding for Rails ActiveRecord models}
 
-  s.add_runtime_dependency     'graticule', ">= 2.0.0"
+  #s.add_runtime_dependency     'graticule', ">= 2.0.0"
 end
 
