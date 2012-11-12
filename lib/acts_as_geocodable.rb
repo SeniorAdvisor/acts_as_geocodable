@@ -176,7 +176,7 @@ module ActsAsGeocodable #:nodoc:
             :latitude_column => "geocodes.latitude",
             :longitude_column => "geocodes.longitude",
             :units => units,
-            :distance => options[:within]
+            :distance => acts_as_geocodable_options[:within]
           )
         else
           Graticule::Distance::Spherical.to_sql(
