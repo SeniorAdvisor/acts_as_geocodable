@@ -169,7 +169,7 @@ module ActsAsGeocodable #:nodoc:
 
       def sql_for_distance(origin, units = acts_as_geocodable_options[:units], formula = acts_as_geocodable_options[:formula])
         if formula == :bounding
-          Graticule::Distance::Spherical.to_sql(
+          Graticule::Distance::Bounding.to_sql(
             :location => origin,
             :latitude => origin.latitude,
             :longitude => origin.longitude,
