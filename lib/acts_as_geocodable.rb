@@ -94,7 +94,7 @@ module ActsAsGeocodable #:nodoc:
 
       scope = scope.where("#{distance_sql} >  #{options[:beyond]}") if options[:beyond]
       if options[:within]
-        scope = scope.where("(geocodes.latitude = :lat AND geocodes.longitude = :long) OR (#{sql_for_distance(origin, options[:units], :bounding)})", {:lat => origin.latitude, :long => origin.longitude})
+        scope = scope.where("(geocodes.latitude = :lat AND geocodes.longitude = :long) OR (#{sql_for_distance(origin, options[:units], :bounding, options[:within])})", {:lat => origin.latitude, :long => origin.longitude})
       end
       scope
     }
@@ -167,7 +167,7 @@ module ActsAsGeocodable #:nodoc:
 
     private
 
-      def sql_for_distance(origin, units = acts_as_geocodable_options[:units], formula = acts_as_geocodable_options[:formula], distance = acts_as_geocodable_options[:within])
+      def sql_for_distance(origin, units = acts_as_geocodable_options[:units], formula = acts_as_geocodable_options[:formula], distance = 5.0)
         if formula == :bounding
           Graticule::Distance::Bounding.to_sql(
             :location => origin,
