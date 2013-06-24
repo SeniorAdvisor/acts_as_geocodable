@@ -34,7 +34,8 @@ module ActsAsGeocodable #:nodoc:
         :postal_code => :postal_code, :country => :country},
       :normalize_address => false,
       :distance_column => 'distance',
-      :units => :miles
+      :units => :miles,
+      :formula => :spherical
     }.merge(options)
 
     if ActiveRecord::VERSION::MAJOR >= 3
@@ -85,6 +86,7 @@ module ActsAsGeocodable #:nodoc:
       options = {
         :units => acts_as_geocodable_options[:units],
       }.merge(args[1] || {})
+
       distance_sql = sql_for_distance(origin, options[:units])
 
       scope = with_geocode_fields.select("#{table_name}.*, #{distance_sql} AS
@@ -92,7 +94,7 @@ module ActsAsGeocodable #:nodoc:
 
       scope = scope.where("#{distance_sql} >  #{options[:beyond]}") if options[:beyond]
       if options[:within]
-        scope = scope.where("(geocodes.latitude = :lat AND geocodes.longitude = :long) OR (#{distance_sql} <= #{options[:within]})", {:lat => origin.latitude, :long => origin.longitude})
+        scope = scope.where("(geocodes.latitude = :lat AND geocodes.longitude = :long) OR (#{sql_for_distance(origin, options[:units], :bounding, options[:within])})", {:lat => origin.latitude, :long => origin.longitude})
       end
       scope
     }
@@ -165,14 +167,26 @@ module ActsAsGeocodable #:nodoc:
 
     private
 
-      def sql_for_distance(origin, units = acts_as_geocodable_options[:units])
-        Graticule::Distance::Spherical.to_sql(
-          :latitude => origin.latitude.try(:round,6),
-          :longitude => origin.longitude.try(:round,6),
-          :latitude_column => "geocodes.latitude",
-          :longitude_column => "geocodes.longitude",
-          :units => units
-        )
+      def sql_for_distance(origin, units = acts_as_geocodable_options[:units], formula = acts_as_geocodable_options[:formula], distance = 5.0)
+        if formula == :bounding
+          Graticule::Distance::Bounding.to_sql(
+            :location => origin,
+            :latitude => origin.latitude,
+            :longitude => origin.longitude,
+            :latitude_column => "geocodes.latitude",
+            :longitude_column => "geocodes.longitude",
+            :units => units,
+            :distance => distance
+          )
+        else
+          Graticule::Distance::Spherical.to_sql(
+            :latitude => origin.latitude,
+            :longitude => origin.longitude,
+            :latitude_column => "geocodes.latitude",
+            :longitude_column => "geocodes.longitude",
+            :units => units
+          )
+        end
       end
     end
 
