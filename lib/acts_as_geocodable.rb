@@ -171,8 +171,8 @@ module ActsAsGeocodable #:nodoc:
         if formula == :bounding
           Graticule::Distance::Bounding.to_sql(
             :location => origin,
-            :latitude => origin.latitude,
-            :longitude => origin.longitude,
+            :latitude => origin.latitude.try(:round,6),
+            :longitude => origin.longitude.try(:round,6),
             :latitude_column => "geocodes.latitude",
             :longitude_column => "geocodes.longitude",
             :units => units,
@@ -180,8 +180,8 @@ module ActsAsGeocodable #:nodoc:
           )
         else
           Graticule::Distance::Spherical.to_sql(
-            :latitude => origin.latitude,
-            :longitude => origin.longitude,
+            :latitude => origin.latitude.try(:round,6),
+            :longitude => origin.longitude.try(:round,6),
             :latitude_column => "geocodes.latitude",
             :longitude_column => "geocodes.longitude",
             :units => units
