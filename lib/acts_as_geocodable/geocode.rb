@@ -19,10 +19,18 @@ class Geocode < ActiveRecord::Base
   end
 
   def self.find_or_create_by_query(query)
-    find_by_query(query) || create_by_query(query)
+    geocode = find_by_query(query) || create_by_query(query)
+    # if can't get geocode, then get the geocode by the state
+    if geocode.nil?
+      query = query.split(',').pop.strip.split(/\s/).shift.strip
+      geocode = find_by_query(query) || create_by_query(query)
+    end
+    geocode
   end
 
   def self.create_by_query(query)
+    new_geocode = geocoder.locate(query)
+    return nil if new_geocode.nil?
     create geocoder.locate(query).attributes.merge(:query => query)
   end
 
