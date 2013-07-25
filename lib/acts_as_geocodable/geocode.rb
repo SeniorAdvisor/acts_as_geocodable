@@ -31,7 +31,7 @@ class Geocode < ActiveRecord::Base
   def self.create_by_query(query)
     new_geocode = geocoder.locate(query)
     return nil if new_geocode.nil?
-    create geocoder.locate(query).attributes.merge(:query => query)
+    create new_geocode.attributes.merge(:query => query)
   end
 
   def self.find_or_create_by_location(location)
